@@ -1,0 +1,125 @@
+# -*- coding: utf-8 -*-
+from copy import copy
+from restfmclient.database import Database
+from restfmclient.exceptions import RESTfmException
+from restfmclient.exceptions import RESTfmNotFound
+from restfmclient.rest import Rest
+from restfmclient.rest import RestNotFoundException
+from restfmclient.rest import RestDecoderException
+from restfmclient.version import __version__
+
+
+class RESTfm(Rest):
+
+    def __init__(self, loop):
+        super(RESTfm, self).__init__(loop)
+
+        self.set_header('User-Agent', 'py-restfm/' + __version__)
+        self._store_path = None
+
+    @property
+    def store_path(self):
+        return self._store_path
+
+    @store_path.setter
+    def store_path(self, value):
+        self._store_path = value
+
+    def clone(self):
+        clone = RESTfm(self._loop)
+        clone.store_path = self.store_path
+        clone.verify_ssl = self.verify_ssl
+        clone.session = self.session
+        clone.timeout = self.timeout
+        clone.headers = copy(self.headers)
+        clone.base_url = self.base_url
+        clone.path = self.path
+
+        return clone
+
+    async def _fm_request(self, method, data=None):
+        result = ''
+        try:
+            func = getattr(super(RESTfm, self), method)
+            if data is None:
+                result = await func(store_path=self._store_path)
+            else:
+                result = await func(data, store_path=self._store_path)
+
+        except RestDecoderException as e:
+            raise RESTfmException(self.url(), data, e)
+
+        except RestNotFoundException as e:
+            raise RESTfmNotFound("Record not found.") from e
+
+        if result['info']['X-RESTfm-Status'] == 404:
+            raise RESTfmNotFound("Record not found.")
+
+        if (result['info']['X-RESTfm-Status'] > 299 or
+                result['info']['X-RESTfm-Status'] < 200):
+            raise RESTfmException(self.url(), data, result)
+
+        return result
+
+    async def get(self):
+        return await self._fm_request('get')
+
+    async def put(self, data):
+        return await self._fm_request('put', data)
+
+    async def post(self, data):
+        return await self._fm_request('post', data)
+
+    async def delete(self):
+        return await self._fm_request('delete')
+
+
+class Client(object):
+
+    def __init__(self, loop, base_url,
+                 username=None, password=None, verify_ssl=True):
+        self._client = RESTfm(loop)
+        self._client.verify_ssl = verify_ssl
+        self._client.base_url = base_url
+        if username is not None and password is not None:
+            self._client.basic_auth(username, password)
+
+    @property
+    def store_path(self):
+        return self._client.store_path
+
+    @store_path.setter
+    def store_path(self, value):
+        self._client.store_path = value
+
+    async def list_dbs(self):
+        if self._client is None:
+            return []
+
+        client = self._client.clone()
+        client.path = '.json'
+        client.query = {'RFMlink': 'layout'}
+        json = await client.get()
+
+        result = []
+        for v in json['data']:
+            result.append(v['database'])
+
+        return result
+
+    def get_db(self, name):
+        if self._client is None:
+            return None
+
+        return Database(self._client, name)
+
+    async def close(self):
+        if self._client is not None:
+            await self._client.close()
+            self._client = None
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close()
