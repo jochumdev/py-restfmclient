@@ -24,7 +24,7 @@ class Database(object):
 
         result = []
         if 'data' not in json:
-            return result
+            return result  # pragma: no cover
 
         for v in json['data']:
             result.append(v['layout'])
@@ -42,7 +42,7 @@ class Database(object):
 
         result = []
         if 'data' not in json:
-            return result
+            return result  # pragma: no cover
 
         for v in json['data']:
             result.append(v['script'])

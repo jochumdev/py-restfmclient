@@ -17,6 +17,12 @@ class RecordIteratorTestCase(RESTfmTestCase):
             dbs = await self.client.list_dbs()
             self.assertIn('restfm_example', dbs)
 
+        # Ops on closed client.
+        await self.client.close()
+        await self.client.close()  # Cover :)
+        await self.client.list_dbs()
+        self.client.get_db('restfm_example')
+
     @unittest_run_loop
     async def test_nonexistant_db_list_layouts(self):
         async with self.client:
@@ -54,7 +60,7 @@ class RecordIteratorTestCase(RESTfmTestCase):
             try:
                 await rest_client.get()
             except RESTfmException as e:
-                pprint(e)
+                pprint(e.trace())
                 return
 
             raise Exception('Should never reach here.')
@@ -74,12 +80,24 @@ class RecordIteratorTestCase(RESTfmTestCase):
     @unittest_run_loop
     async def test_store(self):
         async with self.client:
+            # Get for the default saver.
+            db = self.client.get_db('restfm_example')
+            layout = db.layout('us500')
+
+            # Read
+            await layout.get_one()
+            async for record in layout.get():
+                print(record.record_id)
+
+            # Now with the /tmp saver.
             self.client.store_path = '/tmp'
             db = self.client.get_db('restfm_example')
             layout = db.layout('us500')
 
             # Read
             await layout.get_one()
+            async for record in layout.get():
+                print(record.record_id)
 
             # The if is here for codecov ...
             if self.client.store_path == '/tmp':
@@ -92,6 +110,7 @@ class RecordIteratorTestCase(RESTfmTestCase):
             layout = db.layout('us500')
 
             count = await layout.count
+            count = await layout.count  # Twice for coverage
             self.assertEqual(count, 502)
 
     @unittest_run_loop
@@ -172,7 +191,50 @@ class RecordIteratorTestCase(RESTfmTestCase):
             }
 
             record = await layout.get_by_id(635)
+            record = await layout.get_by_id(635)  # Twice for coverage
             self.assertEqual(record, stored_record)
+
+    @unittest_run_loop
+    async def test_update_unknown_field(self):
+        async with self.client:
+            db = self.client.get_db('restfm_example')
+            layout = db.layout('us500')
+
+            # Read
+            record = await layout.get_one()
+
+            try:
+                record['unknown'] = 'I raise a KeyError'
+            except KeyError:
+                pass
+
+            try:
+                record['unknown2'] = 'I raise a KeyError'
+            except KeyError:
+                return
+
+            raise Exception('Should never reach here.')
+
+    @unittest_run_loop
+    async def test_del_field(self):
+        async with self.client:
+            db = self.client.get_db('restfm_example')
+            layout = db.layout('us500')
+
+            # Read
+            record = await layout.get_one()
+
+            try:
+                del record['web']
+            except NotImplementedError:
+                pass
+
+            try:
+                del record['first_name']
+            except NotImplementedError:
+                return
+
+            raise Exception('Should never reach here.')
 
     @unittest_run_loop
     async def test_crud(self):
@@ -183,19 +245,11 @@ class RecordIteratorTestCase(RESTfmTestCase):
             # Read
             record = await layout.get_one()
 
+            record['web'] = record['web']  # For coverage
+
             # Update
             record['web'] = 'https://www.restfm-update-%d.org' % time.time()
             await record.save()
-
-            try:
-                record['unknown'] = 'I raise a KeyError'
-            except KeyError:
-                pass
-
-            try:
-                del record['web']
-            except NotImplementedError:
-                pass
 
             # Create a row
             record = await layout.create()

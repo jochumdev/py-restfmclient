@@ -196,6 +196,7 @@ class Rest(object):
             # Dir exists.
             pass
 
+        logger.debug('Saving: %s, len: %d' % (save_path, len(result)))
         async with aiofiles.open(save_path, mode='w', loop=self._loop) as f:
             await f.write(result)
 
