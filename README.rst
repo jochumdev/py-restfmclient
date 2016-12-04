@@ -1,6 +1,12 @@
 python client library for `RESTfm`_
 ===================================
 
+.. image:: https://travis-ci.org/mariaebene/py-restfmclient.svg?branch=master
+    :target: https://travis-ci.org/mariaebene/py-restfmclient
+    
+.. image:: https://codecov.io/gh/mariaebene/py-restfmclient/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/mariaebene/py-restfmclient
+
 **In short** This library gives you full access to Filemaker with a pythonic api.
 
 RESTfm gives you full Create, Read, Update and Delete ( CRUD ) operations on FileMaker Server hosted data via standard HTTP GET, POST, PUT and DELETE methods, this means you can get can get access to Filemaker over HTTP and with this library of also with Python 3.5+.
