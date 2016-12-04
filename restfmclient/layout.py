@@ -18,6 +18,10 @@ class Layout(object):
         self._count = None
 
     @property
+    def client(self):
+        return self._client.clone()
+
+    @property
     async def count(self):
         if self._count is not None:
             return self._count
@@ -30,12 +34,12 @@ class Layout(object):
         if self._field_info is not None:
             return self._field_info
 
-        await self.get(1)
+        await self.get_one()
         return self._field_info
 
     def get(self, sql=None, block_size=100,
             limit=None, offset=0, prefetch=True):
-        client = self._client.clone()
+        client = self.client
         client.path += '.json'
         if sql is not None:
             client.query['RFMfind'] = sql
@@ -44,7 +48,7 @@ class Layout(object):
                               limit=limit, offset=offset)
 
     async def get_one(self, sql=None, skip=0):
-        client = self._client.clone()
+        client = self.client
         client.path += '.json'
         if sql is not None:
             client.query['RFMfind'] = sql
@@ -56,20 +60,20 @@ class Layout(object):
         if self._field_info is None:
             self._field_info, self._count = info_from_resultset(result)
 
-        return Record(self._client, self._field_info,
+        return Record(self.client, self._field_info,
                       result['data'][0], result['meta'][0]['recordID'])
 
     async def get_by_id(self, id):
-        client = self._client.clone()
+        client = self.client
 
         client.path += str(id) + '/.json'
         result = await client.get()
 
         if self._field_info is None:
-            self._info_from_resultset(result)
+            self._field_info, self._count = info_from_resultset(result)
 
-        return Record(self._client, self._field_info,
+        return Record(self.client, self._field_info,
                       result['data'][0], id)
 
     async def create(self):
-        return Record(self._client, await self.field_info)
+        return Record(self.client, await self.field_info)

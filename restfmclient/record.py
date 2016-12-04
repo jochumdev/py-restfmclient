@@ -45,7 +45,9 @@ class Record(dict):
         return self._modified_fields
 
     async def save(self):
-        if self._deleted or (not self.modified and self.record_id is not None):
+        if (self._deleted or
+            (not self.modified and
+             self.record_id is not None)):  # pragma: no cover
             return
 
         if self.record_id is None:
@@ -67,7 +69,7 @@ class Record(dict):
         return
 
     async def delete(self):
-        if self._deleted:
+        if self._deleted:  # pragma: no cover
             return
 
         client = self._client.clone()
@@ -88,4 +90,4 @@ class Record(dict):
         dict.__setitem__(self, key, value)
 
     def __delitem__(self, key):
-        raise NotImplemented
+        raise NotImplementedError

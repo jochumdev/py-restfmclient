@@ -81,8 +81,12 @@ class Client(object):
         self._client = RESTfm(loop)
         self._client.verify_ssl = verify_ssl
         self._client.base_url = base_url
-        if username is not None and password is not None:
+        if username is not None and password is not None:  # prama: no cover
             self._client.basic_auth(username, password)
+
+    @property
+    def rest_client(self):
+        return self._client
 
     @property
     def store_path(self):
@@ -93,7 +97,7 @@ class Client(object):
         self._client.store_path = value
 
     async def list_dbs(self):
-        if self._client is None:
+        if self._client is None:  # prama: no cover
             return []
 
         client = self._client.clone()
@@ -108,7 +112,7 @@ class Client(object):
         return result
 
     def get_db(self, name):
-        if self._client is None:
+        if self._client is None:  # prama: no cover
             return None
 
         return Database(self._client, name)
@@ -122,4 +126,4 @@ class Client(object):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close()
+        await self.close()  # pragma: no cover
