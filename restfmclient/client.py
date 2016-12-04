@@ -49,11 +49,11 @@ class RESTfm(Rest):
         except RestDecoderException as e:
             raise RESTfmException(self.url(), data, e)
 
-        except RestNotFoundException as e:
-            raise RESTfmNotFound("Record not found.") from e
+        except RestNotFoundException as e:  # pragma: no cover
+            raise RESTfmNotFound("Record not found") from e  # pragma: no cover
 
         if result['info']['X-RESTfm-Status'] == 404:
-            raise RESTfmNotFound("Record not found.")
+            raise RESTfmNotFound("Record not found")
 
         if (result['info']['X-RESTfm-Status'] > 299 or
                 result['info']['X-RESTfm-Status'] < 200):
@@ -81,8 +81,8 @@ class Client(object):
         self._client = RESTfm(loop)
         self._client.verify_ssl = verify_ssl
         self._client.base_url = base_url
-        if username is not None and password is not None:  # prama: no cover
-            self._client.basic_auth(username, password)
+        if username is not None and password is not None:
+            self._client.basic_auth(username, password)  # pragma: no cover
 
     @property
     def rest_client(self):
@@ -97,8 +97,8 @@ class Client(object):
         self._client.store_path = value
 
     async def list_dbs(self):
-        if self._client is None:  # prama: no cover
-            return []
+        if self._client is None:
+            return []  # pragma: no cover
 
         client = self._client.clone()
         client.path = '.json'
@@ -112,10 +112,10 @@ class Client(object):
         return result
 
     def get_db(self, name):
-        if self._client is None:  # prama: no cover
-            return None
+        if self._client is None:
+            return None  # pragma: no cover
 
-        return Database(self._client, name)
+        return Database(self._client.clone(), name)
 
     async def close(self):
         if self._client is not None:

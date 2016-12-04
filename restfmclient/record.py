@@ -62,7 +62,7 @@ class Record(dict):
         client = self._client.clone()
         client.path += "%s/.json" % self.record_id
         update = {}
-        for field in self._modified_fields:
+        for field in self.modified_fields:
             update[field] = self[field]
 
         await client.put({'data': [update]})
@@ -78,11 +78,11 @@ class Record(dict):
         self._deleted = True
 
     def __setitem__(self, key, value):
-        if dict.__getitem__(self, key) == value:
-            return
-
         if key not in self._field_info:
             raise KeyError("Unknown field: %s" % key)
+
+        if dict.__getitem__(self, key) == value:
+            return
 
         self._modified = True
         self._modified_fields.append(key)
