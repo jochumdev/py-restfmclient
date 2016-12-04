@@ -43,24 +43,17 @@ class RecordIterator(AsyncIterator):
         self._current_block_pos = 0
         self._prefetcher = None
 
-    @property
-    async def count(self):
-        if self._count is not None:
-            return self._count
-
-        await self._fetch()
-        return self._count
-
     async def _fetch(self, offset=0):
         if offset != 0:
             self._client.query['RFMskip'] = offset
-
-        print('Fetch: %s' % self._client.url())
 
         result = await self._client.get()
 
         if self._field_info is None:
             self._field_info, self._count = info_from_resultset(result)
+
+        if 'data' not in result:
+            return ([], 0)
 
         records = []
         for idx, row in enumerate(result['data']):
@@ -122,6 +115,9 @@ class RecordIterator(AsyncIterator):
             self._current_block_pos = 0
             self._prefetcher = None
 
+            if self._current_block_size == 0:
+                raise StopAsyncIteration
+
         row = self._current_block[self._current_block_pos]
         self._current_pos += 1
         self._current_block_pos += 1
@@ -130,7 +126,7 @@ class RecordIterator(AsyncIterator):
             # Need to fetch next block?
             if self._current_block_pos == self._block_size_div:
                 # Do we have more rows to fetch
-                if (self._offset + self._count >
+                if (self._count >
                         self._current_pos + self._block_size_div):
                     # Do we reach a limit?
                     if (self._limit is None or
@@ -153,7 +149,7 @@ class RecordIterator(AsyncIterator):
         elif self._current_block_pos >= self._current_block_size:
             # Do we have more rows to fetch
             if (self._count is not None and
-                    self._offset + self._count > self._current_pos):
+                    self._count > self._current_pos):
                 # Do we reach a limit?
                 if (self._limit is None or self._current_pos < self._limit):
                     # Prefetch off, blocksize on

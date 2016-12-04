@@ -40,7 +40,7 @@ class RESTfmTestClient(restfmclient.Client):
 
     async def close(self):
         if not self._closed:
-            await self._client.close()
+            await super(RESTfmTestClient, self).close()
             if self._server is not None:
                 await self._server.close()
             self._closed = True
@@ -56,7 +56,7 @@ class RESTfmTestClient(restfmclient.Client):
     async def __aenter__(self):
         await self.start_server()
         self.setup_client()
-        return self
+        return await super(RESTfmTestClient, self).__aenter__()
 
     async def __aexit__(self, exc_type, exc_value, traceback):
         await self.close()

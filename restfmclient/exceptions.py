@@ -27,7 +27,7 @@ class RESTfmException(Exception):
                 'result': self._result.result,
                 'message': str(self._result),
             }
-        elif isinstance(self._result, (Exception,)):
+        elif isinstance(self._result, (Exception,)):  # pragma: no cover
             return {
                 'status_code': 500,
                 'url': self._url,

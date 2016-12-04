@@ -3,6 +3,7 @@ import aiohttp
 import copy
 import json
 import os
+import logging
 from os import path
 from collections import OrderedDict
 import urllib.parse as urlparse
@@ -12,8 +13,10 @@ from urllib.parse import unquote
 try:
     import aiofiles
     HAS_AIOFILES = True
-except ImportError:
+except ImportError:  # pragma: no cover
     HAS_AIOFILES = False
+
+logger = logging.getLogger('Rest')
 
 
 class RestNotFoundException(Exception):
@@ -49,7 +52,7 @@ class Rest(object):
         self._path = ''
         self._query = {}
 
-    def clone(self):
+    def clone(self):  # pragma: no cover
         clone = Rest(self._loop)
         clone.verify_ssl = self.verify_ssl
         clone.session = self.session
@@ -138,7 +141,7 @@ class Rest(object):
         return self._headers[key]
 
     def basic_auth(self, username, password):
-        self.set_header(
+        self.set_header(  # pragma: no cover
             'Authorization',
             aiohttp.BasicAuth(username, password).encode()
         )
@@ -168,7 +171,7 @@ class Rest(object):
         return urlparse.urlunparse(url_parts)
 
     async def _store(self, store_path, method, url, result):
-        if not HAS_AIOFILES:
+        if not HAS_AIOFILES:  # pragma: no cover
             return
 
         url_parts = list(urlparse.urlparse(url))
@@ -189,7 +192,7 @@ class Rest(object):
 
         try:
             os.makedirs(path.dirname(save_path), 0o755)
-        except OSError:
+        except OSError:  # pragma: no cover
             # Dir exists.
             pass
 
@@ -199,6 +202,7 @@ class Rest(object):
     async def _request(self, method, store_path=None, **kwargs):
         with aiohttp.Timeout(self.timeout, loop=self.session.loop):
             url = self.url()
+            logger.debug('Fetch: %s' % url)
             kwargs['headers'] = self.headers
             async with self.session.request(method, url, **kwargs) as response:
                 if self.headers['Content-Type'] == 'application/json':
@@ -206,7 +210,7 @@ class Rest(object):
                     if store_path is not None:
                         await self._store(store_path, method, url, result)
 
-                    if response.status == 404:
+                    if response.status == 404:  # pragma: no cover
                         raise RestNotFoundException("Not found.")
 
                     try:
@@ -214,18 +218,10 @@ class Rest(object):
                     except json.decoder.JSONDecodeError:
                         raise RestDecoderException(result)
 
-                elif self.headers['Content-Type'] == 'text/xml':
-                    return await response.xml()
-                else:
+                else:  # pragma: no cover
                     return await response.text()
 
     async def close(self):
         if self._session is not None:
             await self._session.close()
             self._session = None
-
-    async def __aenter__(self):
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close()
