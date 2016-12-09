@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
-import asyncio
 from collections.abc import AsyncIterator
-from restfmclient.record import Record
+from restfmclient.exceptions import RESTfmNotFound
 from restfmclient.record import info_from_resultset
+from restfmclient.record import Record
+
+import asyncio
 
 
 class RecordIterator(AsyncIterator):
     def __init__(self, client, block_size=100,
-                 limit=None, offset=0, prefetch=True):
+                 limit=None, offset=0, prefetch=True, field_info=None):
         self._client = client
         self._limit = limit
         self._block_size = block_size
@@ -24,6 +26,8 @@ class RecordIterator(AsyncIterator):
                 client.query['RFMmax'] = self._limit
             else:
                 client.query['RFMmax'] = self._block_size
+        else:
+            client.query['RFMmax'] = self._block_size
 
         if offset != 0:
             client.query['RFMskip'] = offset
@@ -34,7 +38,7 @@ class RecordIterator(AsyncIterator):
 
             self._block_size_div = int(block_size / 2)
 
-        self._field_info = None
+        self._field_info = field_info
         self._count = None
 
         self._current_block = None
@@ -47,13 +51,20 @@ class RecordIterator(AsyncIterator):
         if offset != 0:
             self._client.query['RFMskip'] = offset
 
-        result = await self._client.get()
+        try:
+            result = await self._client.get()
+        except RESTfmNotFound:
+            raise StopAsyncIteration
 
-        if self._field_info is None:
-            self._field_info, self._count = info_from_resultset(result)
+        if self._field_info is None or self._count is None:
+            field_info, count = info_from_resultset(result)
+            if self._field_info is None:
+                self._field_info = field_info
+            if self._count is None:
+                self._count = count
 
-        if 'data' not in result:
-            return ([], 0)
+        if 'data' not in result or isinstance(result['data'][0], (list,)):
+            raise StopAsyncIteration
 
         records = []
         for idx, row in enumerate(result['data']):

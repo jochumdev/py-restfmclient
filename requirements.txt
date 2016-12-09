@@ -1,5 +1,7 @@
 aiohttp==1.1.6
 aiofiles==0.3.0
+pytz==2016.10
+simplejson==3.10.0
 
 # Required by aiohttp
 async-timeout==1.1.0

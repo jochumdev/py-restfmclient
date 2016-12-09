@@ -12,7 +12,7 @@ class RecordIteratorTestCase(RESTfmTestCase):
                                 .layout('iterate_test')
             try:
                 async for record in layout.get(block_size=3):
-                    print(record.record_id)
+                    print(record['number'])
             except ValueError:
                 return
 
@@ -25,7 +25,7 @@ class RecordIteratorTestCase(RESTfmTestCase):
                                 .layout('iterate_test')
             numbers = []
             async for record in layout.get(limit=500, offset=10):
-                numbers.append(int(record.record_id))
+                numbers.append(int(record['number']))
 
             self.assertEqual(
                 11, numbers[0], 'First number must be 11 as we have offset=10'
@@ -43,7 +43,7 @@ class RecordIteratorTestCase(RESTfmTestCase):
             numbers = []
             async for record in layout.get(
                     limit=500, offset=10, block_size=None):
-                numbers.append(int(record.record_id))
+                numbers.append(int(record['number']))
 
             self.assertEqual(
                 11, numbers[0], 'First number must be 11 as we have offset=10'
@@ -61,7 +61,7 @@ class RecordIteratorTestCase(RESTfmTestCase):
             numbers = []
             async for record in layout.get(
                     limit=100, offset=10, prefetch=False):
-                numbers.append(int(record.record_id))
+                numbers.append(int(record['number']))
 
             self.assertEqual(
                 numbers[0], 11, 'First number must be 11 as we have offset=10'
@@ -79,7 +79,7 @@ class RecordIteratorTestCase(RESTfmTestCase):
             numbers = []
             async for record in layout.get(
                     limit=500, offset=4600, prefetch=False):
-                numbers.append(int(record.record_id))
+                numbers.append(int(record['number']))
 
             self.assertEqual(
                 numbers[0], 4601, 'First number must be 4600 as we have offset=4600'  # noqa
@@ -87,4 +87,18 @@ class RecordIteratorTestCase(RESTfmTestCase):
             self.assertEqual(
                 numbers[len(numbers) - 1], 5000,
                 'Last number must be 5000 we have limit=500, offset=4600 but only 5000 records'  # noqa
+            )
+
+    @unittest_run_loop
+    async def test_fetch_all(self):
+        async with self.client:
+            layout = self.client.get_db('restfm_example')\
+                                .layout('iterate_test')
+
+            numbers = []
+            async for record in layout.get():
+                numbers.append(record['number'])
+
+            self.assertEqual(
+                len(numbers), await layout.count
             )

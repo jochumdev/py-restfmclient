@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
-import time
-from pprint import pprint
 from aiohttp.test_utils import unittest_run_loop
-from restfmclient.tests import RESTfmTestCase
+from pprint import pprint
 from restfmclient import RESTfmException
 from restfmclient import RESTfmNotFound
+from restfmclient.tests import RESTfmTestCase
+
+import copy
+import time
 
 
-class RecordIteratorTestCase(RESTfmTestCase):
+class BasicTestCase(RESTfmTestCase):
 
     @unittest_run_loop
     async def test_list_dbs(self):
@@ -41,7 +43,7 @@ class RecordIteratorTestCase(RESTfmTestCase):
             db = self.client.get_db('restfm_example')
             self.assertEqual('restfm_example', db.name)
             layouts = await db.list_layouts()
-            self.assertEqual(len(layouts), 3)
+            self.assertEqual(len(layouts), 4)
 
             # This is needed for further iterate tests:
             self.assertIn('iterate_test', layouts)
@@ -111,7 +113,7 @@ class RecordIteratorTestCase(RESTfmTestCase):
 
             count = await layout.count
             count = await layout.count  # Twice for coverage
-            self.assertEqual(count, 502)
+            self.assertEqual(count, 500)
 
     @unittest_run_loop
     async def test_layout_field_info(self):
@@ -140,7 +142,11 @@ class RecordIteratorTestCase(RESTfmTestCase):
                 'zip': {'auto_entered': 0, 'global': 0, 'max_repeat': 1, 'type': 'number'}}  # noqa
 
             field_info = await layout.field_info
-            self.assertEqual(field_info, stored_field_info)
+            no_converter = copy.deepcopy(field_info)
+            for v in no_converter.values():
+                del(v['converter'])
+
+            self.assertEqual(no_converter, stored_field_info)
 
     @unittest_run_loop
     async def test_layout_get_one_sql(self):
@@ -155,6 +161,18 @@ class RecordIteratorTestCase(RESTfmTestCase):
             sql = 'SELECT "zip", "web" WHERE zip LIKE \'70000..80000\''
             record = await layout.get_one(sql=sql, skip=5)
             self.assertEqual(record, stored_record)
+
+    @unittest_run_loop
+    async def test_get_one_by_field(self):
+        async with self.client:
+            db = self.client.get_db('restfm_example')
+            layout = db.layout('us500')
+
+            record = await layout.get_one(
+                search={'phone2': '856-264-4130'}
+            )
+
+            self.assertEqual(record['phone2'], '856-264-4130')
 
     @unittest_run_loop
     async def test_layout_get_by_id_notfound(self):
@@ -267,6 +285,9 @@ class RecordIteratorTestCase(RESTfmTestCase):
             })
             await record.save()
 
+            check_record = await layout.get_by_id(record.record_id)
+            self.assertEqual(check_record['web'], 'https://mustermans.at')
+
             # Delete the created row
             await record.delete()
 
@@ -276,6 +297,7 @@ class RecordIteratorTestCase(RESTfmTestCase):
             db = self.client.get_db('restfm_example')
             layout = db.layout('us500')
 
+            # SETECT instead of SELECT here
             sql = 'SETECT "zip", "web" WHERE zip LIKE \'70000..80000\''
             try:
                 await layout.get_one(sql=sql)
@@ -298,7 +320,21 @@ class RecordIteratorTestCase(RESTfmTestCase):
                 self.assertGreaterEqual(int(record['zip']), 70000)
                 self.assertLessEqual(int(record['zip']), 80000)
 
-            self.assertEqual(records_num, 24)
+            self.assertEqual(records_num, 43)
+
+    @unittest_run_loop
+    async def test_sql_query_no_result(self):
+        async with self.client:
+            db = self.client.get_db('restfm_example')
+            layout = db.layout('us500')
+
+            records_num = 0
+            sql = 'SELECT "zip", "web" WHERE state = "nonexistant"'
+            async for record in layout.get(sql=sql):
+                records_num += 1
+                print(record.record_id)
+
+            self.assertEqual(records_num, 0)
 
     @unittest_run_loop
     async def test_list_scripts(self):

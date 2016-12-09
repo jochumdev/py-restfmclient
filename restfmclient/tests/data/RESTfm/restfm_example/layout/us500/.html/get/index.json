@@ -20,9 +20,9 @@
 <td><pre>/RESTfm/restfm_example/layout/us500.html?RFMskip=24</pre></td>
 </tr>
 <tr id="nav_2" class="alt-colour">
-<td>[ <a href="/RESTfm/restfm_example/layout/us500.html?RFMskip=501">link</a> ]</td>
+<td>[ <a href="/RESTfm/restfm_example/layout/us500.html?RFMskip=499">link</a> ]</td>
 <td><pre>end</pre></td>
-<td><pre>/RESTfm/restfm_example/layout/us500.html?RFMskip=501</pre></td>
+<td><pre>/RESTfm/restfm_example/layout/us500.html?RFMskip=499</pre></td>
 </tr>
 </table>
 </div>
@@ -43,7 +43,7 @@
 <td><pre>504-621-8927</pre></td>
 <td><pre>504-845-1427</pre></td>
 <td><pre>jbutt@gmail.com</pre></td>
-<td><pre>https://www.restfm-update-1480890691.org</pre></td>
+<td><pre>https://www.restfm-update-1481291190.org</pre></td>
 </tr>
 <tr id="data_1">
 <td>[ <a href="/RESTfm/restfm_example/layout/us500/615.html">link</a> ]</td>
@@ -395,18 +395,18 @@
 <h3>info</h3>
 <div id="info">
 <table>
-<tr><th>tableRecordCount</th><td class="alt-colour">502</td></tr>
-<tr><th>foundSetCount</th><td>502</td></tr>
+<tr><th>tableRecordCount</th><td class="alt-colour">500</td></tr>
+<tr><th>foundSetCount</th><td>500</td></tr>
 <tr><th>fetchCount</th><td class="alt-colour">24</td></tr>
 <tr><th>skip</th><td>0</td></tr>
-<tr><th>X-RESTfm-Version</th><td class="alt-colour">4.0.8/UNKNOWN</td></tr>
+<tr><th>X-RESTfm-Version</th><td class="alt-colour">4.0.8/20161107-baa0d45</td></tr>
 <tr><th>X-RESTfm-Protocol</th><td>5</td></tr>
 <tr><th>X-RESTfm-Status</th><td class="alt-colour">200</td></tr>
 <tr><th>X-RESTfm-Reason</th><td>OK</td></tr>
 <tr><th>X-RESTfm-Method</th><td class="alt-colour">GET</td></tr>
-<tr><th>X-RESTfm-Profile</th><td>46ms 1004.3K 128M</td></tr>
-<tr><th>X-RESTfm-PHP-memory_limit</th><td class="alt-colour">128M</td></tr>
-<tr><th>X-RESTfm-PHP-post_max_size</th><td>8M</td></tr>
+<tr><th>X-RESTfm-Profile</th><td>41ms 1003.6K 256M</td></tr>
+<tr><th>X-RESTfm-PHP-memory_limit</th><td class="alt-colour">256M</td></tr>
+<tr><th>X-RESTfm-PHP-post_max_size</th><td>128M</td></tr>
 </table>
 </div>
 <h3>meta</h3>

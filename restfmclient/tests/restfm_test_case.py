@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-import os
-import asyncio
-import gc
-import restfmclient
 from aiohttp.test_utils import TestServer
 from pathlib import Path
+from restfmclient.tests.file_server import make_mock_app
+
+import asyncio
+import gc
+import os
+import restfmclient
 import unittest
 import uvloop
-from restfmclient.tests.file_server import make_mock_app
 
 
 class RESTfmTestClient(restfmclient.Client):

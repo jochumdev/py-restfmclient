@@ -3,7 +3,7 @@ python client library for `RESTfm`_
 
 .. image:: https://travis-ci.org/mariaebene/py-restfmclient.svg?branch=master
     :target: https://travis-ci.org/mariaebene/py-restfmclient
-    
+
 .. image:: https://codecov.io/gh/mariaebene/py-restfmclient/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/mariaebene/py-restfmclient
 
@@ -33,14 +33,8 @@ Install RESTfm on *nix
 - Copy *FileMaker Server\Web Publishing\FM_API_for_PHP_Standalone.zip* on your server (use winscp or scp).
 - Extract FM_API_for_PHP_Standalone.zip on the linux box::
 
-   cd /var/www/RESTfm/
-   mv FileMaker.dist FileMaker
+   cd /var/www/RESTfm/FileMaker/
    unzip ~/FM_API_for_PHP_Standalone.zip
-
-- Copy the default config::
-
-   cd /var/www/RESTfm/
-   cp RESTfm.ini.php.dist RESTfm.ini.php
 
 - Configure RESTfm::
 

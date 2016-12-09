@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from copy import copy
+from pytz import timezone
 from restfmclient.database import Database
 from restfmclient.exceptions import RESTfmException
 from restfmclient.exceptions import RESTfmNotFound
 from restfmclient.rest import Rest
-from restfmclient.rest import RestNotFoundException
 from restfmclient.rest import RestDecoderException
+from restfmclient.rest import RestNotFoundException
 from restfmclient.version import __version__
 
 
@@ -16,6 +17,15 @@ class RESTfm(Rest):
 
         self.set_header('User-Agent', 'py-restfm/' + __version__)
         self._store_path = None
+        self._timezone = None
+
+    @property
+    def timezone(self):
+        return self._timezone
+
+    @timezone.setter
+    def timezone(self, value):
+        self._timezone = value
 
     @property
     def store_path(self):
@@ -35,6 +45,8 @@ class RESTfm(Rest):
         clone.base_url = self.base_url
         clone.path = self.path
 
+        clone.timezone = self.timezone
+
         return clone
 
     async def _fm_request(self, method, data=None):
@@ -52,11 +64,14 @@ class RESTfm(Rest):
         except RestNotFoundException as e:  # pragma: no cover
             raise RESTfmNotFound("Record not found") from e  # pragma: no cover
 
-        if result['info']['X-RESTfm-Status'] == 404:
+        statuscode = result['info']['X-RESTfm-Status']
+        if 'X-RESTfm-FM-Status' in result['info']:
+            statuscode = int(result['info']['X-RESTfm-FM-Status'])
+        if (statuscode == 404 or statuscode == 401 or
+                statuscode == 105 or statuscode == 101):
             raise RESTfmNotFound("Record not found")
 
-        if (result['info']['X-RESTfm-Status'] > 299 or
-                result['info']['X-RESTfm-Status'] < 200):
+        if (statuscode > 299 or statuscode < 200):
             raise RESTfmException(self.url(), data, result)
 
         return result
@@ -77,10 +92,12 @@ class RESTfm(Rest):
 class Client(object):
 
     def __init__(self, loop, base_url,
-                 username=None, password=None, verify_ssl=True):
+                 username=None, password=None, verify_ssl=True,
+                 tz='Europe/Vienna'):
         self._client = RESTfm(loop)
         self._client.verify_ssl = verify_ssl
         self._client.base_url = base_url
+        self._client.timezone = timezone(tz)
         if username is not None and password is not None:
             self._client.basic_auth(username, password)  # pragma: no cover
 

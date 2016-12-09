@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-
 from restfmclient.layout import Layout
 from restfmclient.script import Script
+from restfmclient.util import TimzoneManager
 
 
-class Database(object):
+class Database(TimzoneManager):
 
     def __init__(self, client, name):
+        super(Database, self).__init__(client)
         self._client = client
         self._name = name
 
         self._client.path += self._name + '/'
+        self._timezone = self._client.timezone
 
     @property
     def name(self):
@@ -18,6 +20,7 @@ class Database(object):
 
     async def list_layouts(self):
         client = self._client.clone()
+        client.timezone = self._timezone
 
         client.path += 'layout.json'
         json = await client.get()
@@ -32,10 +35,14 @@ class Database(object):
         return result
 
     def layout(self, name):
-        return Layout(self._client.clone(), name)
+        client = self._client.clone()
+        client.timezone = self._timezone
+
+        return Layout(client, name)
 
     async def list_scripts(self):
         client = self._client.clone()
+        client.timezone = self._timezone
 
         client.path += 'script.json'
         json = await client.get()
@@ -50,4 +57,7 @@ class Database(object):
         return result
 
     def script(self, name):
-        return Script(self._client.clone(), name)
+        client = self._client.clone()
+        client.timezone = self._timezone
+
+        return Script(client, name)

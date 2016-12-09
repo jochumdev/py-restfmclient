@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from restfmclient.record import Record
+from restfmclient.exceptions import RESTfmException
+from restfmclient.exceptions import RESTfmNotFound
 from restfmclient.record import info_from_resultset
+from restfmclient.record import Record
 from restfmclient.record_iterator import RecordIterator
 from urllib.parse import quote
 
@@ -26,7 +28,11 @@ class Layout(object):
         if self._count is not None:
             return self._count
 
-        await self.get_one()
+        try:
+            await self.get_one()
+        except RESTfmException:
+            pass
+
         return self._count
 
     @property
@@ -34,31 +40,74 @@ class Layout(object):
         if self._field_info is not None:
             return self._field_info
 
-        await self.get_one()
+        client = self.client
+        client.path += '.json'
+        client.query['RFMmetaFieldOnly'] = '1'
+
+        result = await client.get()
+
+        if self._field_info is None or self._count is None:
+            field_info, count = info_from_resultset(result)
+            if self._field_info is None:
+                self._field_info = field_info
+            if self._count is None:
+                self._count = count
+
         return self._field_info
 
-    def get(self, sql=None, block_size=100,
+    @field_info.setter
+    def field_info(self, value):
+        self._field_info = value
+
+    def get(self, search=None, sql=None, block_size=100,
             limit=None, offset=0, prefetch=True):
         client = self.client
         client.path += '.json'
         if sql is not None:
             client.query['RFMfind'] = sql
 
-        return RecordIterator(client, block_size=block_size,
-                              limit=limit, offset=offset)
+        searchNum = 1
+        if search is not None:
+            for k, v in search.items():
+                client.query['RFMsF%d' % searchNum] = k
+                client.query['RFMsV%d' % searchNum] = v
+                searchNum += 1
 
-    async def get_one(self, sql=None, skip=0):
+        return RecordIterator(
+            client,
+            block_size=block_size,
+            limit=limit, offset=offset,
+            field_info=self._field_info
+        )
+
+    async def get_one(self, search=None, sql=None, skip=0):
         client = self.client
         client.path += '.json'
         if sql is not None:
             client.query['RFMfind'] = sql
+
+        searchNum = 1
+        if search is not None:
+            for k, v in search.items():
+                client.query['RFMsF%d' % searchNum] = k
+                client.query['RFMsV%d' % searchNum] = v
+                searchNum += 1
+
         client.query['RFMmax'] = 1
         if skip != 0:
             client.query['RFMskip'] = skip
 
         result = await client.get()
-        if self._field_info is None:
-            self._field_info, self._count = info_from_resultset(result)
+
+        if self._field_info is None or self._count is None:
+            field_info, count = info_from_resultset(result)
+            if self._field_info is None:
+                self._field_info = field_info
+            if self._count is None:
+                self._count = count
+
+        if 'data' not in result:
+            raise RESTfmNotFound()
 
         return Record(self.client, self._field_info,
                       result['data'][0], result['meta'][0]['recordID'])

@@ -14,9 +14,14 @@ class RESTfmException(Exception):
                 str(result)
             )
         else:
-            super(RESTfmException, self).__init__(
-                result['info']['X-RESTfm-Trace']
-            )
+            if 'X-RESTfm-FM-Reason' in result['info']:
+                super(RESTfmException, self).__init__(
+                    result['info']['X-RESTfm-FM-Reason']
+                )
+            else:
+                super(RESTfmException, self).__init__(
+                    result['info']['X-RESTfm-Trace']
+                )
 
     def trace(self):
         if isinstance(self._result, (RestDecoderException,)):
@@ -36,12 +41,20 @@ class RESTfmException(Exception):
                 'message': str(self._result),
             }  # pragma: no cover
         else:
+            statuscode = self._result['info']['X-RESTfm-Status']
+            if 'X-RESTfm-FM-Status' in self._result['info']:
+                statuscode = int(self._result['info']['X-RESTfm-FM-Status'])
+
+            message = self._result['info']['X-RESTfm-Trace']
+            if 'X-RESTfm-FM-Reason' in self._result['info']:
+                message = self._result['info']['X-RESTfm-FM-Reason']
+
             return {
-                'status_code': self._result['info']['X-RESTfm-Status'],
+                'status_code': statuscode,
                 'url': self._url,
                 'request_data': self._data,
                 'result': self._result,
-                'message': self._result['info']['X-RESTfm-Trace'],
+                'message': message,
             }
 
 

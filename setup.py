@@ -3,6 +3,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
+
 setup(
     name='restfm',
     version='0.0.1.dev0',
@@ -20,6 +21,8 @@ setup(
     include_package_data=True,
     zip_safe=True,
     install_requires=[
+        'setuptools',
         'aiohttp',
+        'simplejson'
     ]
 )

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
-import json
 import asyncio
+import pprint
 import restfmclient
+import sys
 import uvloop
+
+
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 
@@ -43,16 +45,21 @@ async def example_db_operations(db):
     print('Result of SQL:\t%s' % sql)
     async for record in layout.get(sql=sql):
         print("%s: %s" % (
-            record.record_id, json.dumps(record))
+            record.record_id, pprint.pformat(record))
         )
     print()
+
+    records = []
+    async for record in layout.get():
+        records.append(record)
+    print("Num records: %d" % len(records))
 
     # Run a Script
     script = db.script('Find State')
     print('Result of script "Find State":')
     async for record in script.execute(
             layout='us500', scriptParam='LA', limit=1):
-        print("%s: %s" % (record.record_id, json.dumps(record)))
+        print("%s: %s" % (record.record_id, pprint.pformat(record)))
     print()
 
 
@@ -62,7 +69,7 @@ async def demo_server_operations(db):
     print('Result of SQL:\t%s' % sql)
     async for record in layout.get(sql=sql, limit=10, offset=5):
         print("%s: %s" % (
-            record.record_id, json.dumps(record))
+            record.record_id, pprint.pformat(record))
         )
     print()
 
@@ -71,7 +78,7 @@ async def demo_server_operations(db):
     print('Result of script "SimpleSearch":')
     async for record in script.execute(
             layout='brief postcodes', scriptParam='7300'):
-        print("%s: %s" % (record.record_id, json.dumps(record)))
+        print("%s: %s" % (record.record_id, pprint.pformat(record)))
 
 
 async def examine(loop, base_url, username, password, verify_ssl):
@@ -82,12 +89,12 @@ async def examine(loop, base_url, username, password, verify_ssl):
                 username, password, verify_ssl) as client:
 
             dbs = await client.list_dbs()
-            print('Databases:\t' + json.dumps(dbs))
+            print('Databases:\t' + pprint.pformat(dbs))
 
             for dbname in dbs:
                 db = client.get_db(dbname)
                 layouts = await db.list_layouts()
-                print(db.name + ' layouts:\t' + json.dumps(layouts))
+                print(db.name + ' layouts:\t' + pprint.pformat(layouts))
 
                 for layoutname in layouts:
                     layout = db.layout(layoutname)
@@ -97,12 +104,25 @@ async def examine(loop, base_url, username, password, verify_ssl):
                     )
 
                     row = await layout.get_one()
+                    # field_info = await layout.field_info
+                    #
+                    # for field in copy.field_info.values():
+                    #     del(field['converter'])
+                    #
+                    # print('%s/%s field_info:\t%s' % (
+                    #     db.name, layoutname, pprint.pformat(field_info))
+                    # )
+
+                    converted_row = {}
+                    for k in row.keys():
+                        converted_row[k] = row[k]
+
                     print("%s/%s row:\t%s" % (
-                        db.name, layoutname, json.dumps(row))
+                        db.name, layoutname, pprint.pformat(row))
                     )
 
                 scripts = await db.list_scripts()
-                print(db.name + ' scripts:\t' + json.dumps(scripts) + '\n')
+                print(db.name + ' scripts:\t' + pprint.pformat(scripts) + '\n')
 
                 if dbname == 'restfm_example':
                     await example_db_operations(db)
@@ -111,7 +131,7 @@ async def examine(loop, base_url, username, password, verify_ssl):
                     await demo_server_operations(db)
 
     except (restfmclient.RESTfmException) as e:
-        print(json.dumps(e.trace(), indent=4))
+        print(pprint.pformat(e.trace(), indent=4))
 
 
 async def main(loop):

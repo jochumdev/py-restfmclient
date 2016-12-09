@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
-import os.path
-from aiohttp.web_reqrep import Response
+from aiohttp import web
 from aiohttp.web_exceptions import HTTPForbidden
 from aiohttp.web_exceptions import HTTPNotFound
-from aiohttp import web
-import aiofiles
+from aiohttp.web_reqrep import Response
+from collections import OrderedDict
 from pathlib import Path
-from yarl import unquote
 from urllib.parse import urlencode
+from yarl import unquote
+
+import aiofiles
+import os.path
 
 
 def restfm_mock_filehandler(loop, directory):

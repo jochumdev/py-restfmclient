@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+from os import path
+from urllib.parse import unquote
+from urllib.parse import urlencode
+
 import aiohttp
 import copy
-import json
-import os
 import logging
-from os import path
-from collections import OrderedDict
+import os
 import urllib.parse as urlparse
-from urllib.parse import urlencode
-from urllib.parse import unquote
+
+
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 try:
     import aiofiles
@@ -203,7 +209,7 @@ class Rest(object):
     async def _request(self, method, store_path=None, **kwargs):
         with aiohttp.Timeout(self.timeout, loop=self.session.loop):
             url = self.url()
-            logger.debug('Fetch: %s' % url)
+            logger.debug('%s: %s' % (method.upper(), url))
             kwargs['headers'] = self.headers
             async with self.session.request(method, url, **kwargs) as response:
                 if self.headers['Content-Type'] == 'application/json':
