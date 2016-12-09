@@ -9,11 +9,16 @@ from restfmclient.rest import RestDecoderException
 from restfmclient.rest import RestNotFoundException
 from restfmclient.version import __version__
 
+import logging
+
+
+mylogger = logging.getLogger('RESTfmClient')
+
 
 class RESTfm(Rest):
 
-    def __init__(self, loop):
-        super(RESTfm, self).__init__(loop)
+    def __init__(self, loop, logger):
+        super(RESTfm, self).__init__(loop, logger)
 
         self.set_header('User-Agent', 'py-restfm/' + __version__)
         self._store_path = None
@@ -36,7 +41,7 @@ class RESTfm(Rest):
         self._store_path = value
 
     def clone(self):
-        clone = RESTfm(self._loop)
+        clone = RESTfm(self._loop, self._logger)
         clone.store_path = self.store_path
         clone.verify_ssl = self.verify_ssl
         clone.session = self.session
@@ -93,8 +98,10 @@ class Client(object):
 
     def __init__(self, loop, base_url,
                  username=None, password=None, verify_ssl=True,
-                 tz='Europe/Vienna'):
-        self._client = RESTfm(loop)
+                 tz='Europe/Vienna', logger=None):
+        if logger is None:
+            logger = mylogger
+        self._client = RESTfm(loop, logger)
         self._client.verify_ssl = verify_ssl
         self._client.base_url = base_url
         self._client.timezone = timezone(tz)

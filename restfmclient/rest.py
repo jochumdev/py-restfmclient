@@ -6,7 +6,6 @@ from urllib.parse import urlencode
 
 import aiohttp
 import copy
-import logging
 import os
 import urllib.parse as urlparse
 
@@ -21,8 +20,6 @@ try:
     HAS_AIOFILES = True
 except ImportError:  # pragma: no cover
     HAS_AIOFILES = False
-
-logger = logging.getLogger('Rest')
 
 
 class RestNotFoundException(Exception):
@@ -43,8 +40,9 @@ class RestDecoderException(Exception):
 
 class Rest(object):
 
-    def __init__(self, loop):
+    def __init__(self, loop, logger):
         self._loop = loop
+        self._logger = logger
 
         # Parameters
         self._verify_ssl = True
@@ -59,7 +57,7 @@ class Rest(object):
         self._query = {}
 
     def clone(self):  # pragma: no cover
-        clone = Rest(self._loop)
+        clone = Rest(self._loop, self._logger)
         clone.verify_ssl = self.verify_ssl
         clone.session = self.session
         clone.timeout = self.timeout
@@ -68,6 +66,16 @@ class Rest(object):
         clone.path = self.path
 
         return clone
+
+    # Parameters
+    @property
+    def logger(self):
+        return self._logger
+
+    # Parameters
+    @logger.setter
+    def logger(self, value):
+        self._logger = value
 
     # Parameters
     @property
@@ -202,14 +210,14 @@ class Rest(object):
             # Dir exists.
             pass
 
-        logger.debug('Saving: %s, len: %d' % (save_path, len(result)))
+        self.logger.debug('Saving: %s, len: %d' % (save_path, len(result)))
         async with aiofiles.open(save_path, mode='w', loop=self._loop) as f:
             await f.write(result)
 
     async def _request(self, method, store_path=None, **kwargs):
         with aiohttp.Timeout(self.timeout, loop=self.session.loop):
             url = self.url()
-            logger.debug('%s: %s' % (method.upper(), url))
+            self.logger.debug('HTTP %s %s' % (method.upper(), url))
             kwargs['headers'] = self.headers
             async with self.session.request(method, url, **kwargs) as response:
                 if self.headers['Content-Type'] == 'application/json':
