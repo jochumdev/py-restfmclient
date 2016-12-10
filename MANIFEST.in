@@ -1,0 +1,3 @@
+include README.rst CHANGES.rst LICENSE requirements.txt
+prune examples
+prune */tests/*

@@ -21,7 +21,7 @@ Requirements
 - Tested with FileMaker 15 Server, should work with others.
 
 
-Install RESTfm on *nix
+Install RESTfm on \*nix
 -----------------------
 
 - Install Apache with mod_php or better nginx with php-fpm, there are a lot tutorials for that.
@@ -128,16 +128,6 @@ To update the test mock files, run::
     RESTFM_BASE_URL='http://admin:supersecretpw@<<ip-or-dnsname-of-restfm-box>/RESTfm/' RESTFM_STORE_PATH='restfmclient/tests/data/' nosetests
 
 We use `zest.releaser`_ to create a release and upload it to pypi.
-
-
-Changelog
----------
-
-- 1.0.0 (unreleased)
-
-  - We use `Semantic Versioning`_ from that point on
-
-- 0.0.1 (unreleased)
 
 
 LICENSE
