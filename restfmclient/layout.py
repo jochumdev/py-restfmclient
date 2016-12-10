@@ -3,7 +3,7 @@ from restfmclient.exceptions import RESTfmException
 from restfmclient.exceptions import RESTfmNotFound
 from restfmclient.record import info_from_resultset
 from restfmclient.record import Record
-from restfmclient.record_iterator import RecordIterator
+from restfmclient.cursor import Cursor
 from urllib.parse import quote
 
 
@@ -73,7 +73,7 @@ class Layout(object):
                 client.query['RFMsV%d' % searchNum] = v
                 searchNum += 1
 
-        return RecordIterator(
+        return Cursor(
             client,
             block_size=block_size,
             limit=limit, offset=offset,

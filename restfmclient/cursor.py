@@ -7,7 +7,7 @@ from restfmclient.record import Record
 import asyncio
 
 
-class RecordIterator(AsyncIterator):
+class Cursor(AsyncIterator):
     def __init__(self, client, block_size=100,
                  limit=None, offset=0, prefetch=True, field_info=None):
         self._client = client

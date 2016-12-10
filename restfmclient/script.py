@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from restfmclient.record_iterator import RecordIterator
+from restfmclient.cursor import Cursor
 from restfmclient.util import TimzoneManager
 from urllib.parse import quote
 
@@ -30,7 +30,7 @@ class Script(TimzoneManager):
         if scriptParam is not None:
             client.query['RFMscriptParam'] = scriptParam
 
-        return RecordIterator(
+        return Cursor(
             client, block_size=None, limit=limit,
             field_info=self._field_info
         )

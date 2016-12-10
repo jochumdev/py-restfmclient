@@ -3,7 +3,7 @@ from aiohttp.test_utils import unittest_run_loop
 from restfmclient.tests import RESTfmTestCase
 
 
-class RecordIteratorTestCase(RESTfmTestCase):
+class CursorTestCase(RESTfmTestCase):
 
     @unittest_run_loop
     async def test_bad_blocksize(self):
