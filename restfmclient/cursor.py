@@ -78,7 +78,7 @@ class Cursor(AsyncIterator):
             count = int(result['info']['fetchCount'])
         return (records, count,)
 
-    def __aiter__(self):
+    async def __aiter__(self):
         self._current_block = None
         self._current_block_size = 1
         self._current_pos = 0
