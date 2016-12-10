@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 setup(
-    name='restfm',
+    name='restfmclient',
     version='0.0.1.dev0',
     description="Python client library for RESTfm",
     classifiers=[
@@ -23,6 +23,7 @@ setup(
     install_requires=[
         'setuptools',
         'aiohttp',
-        'simplejson'
+        'simplejson',
+        'pytz',
     ]
 )
