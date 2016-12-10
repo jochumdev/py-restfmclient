@@ -11,8 +11,6 @@ python client library for `RESTfm`_
 
 RESTfm gives you full Create, Read, Update and Delete ( CRUD ) operations on FileMaker Server hosted data via standard HTTP GET, POST, PUT and DELETE methods, this means you can get can get access to Filemaker over HTTP and with this library of also with Python 3.5+.
 
-**EXPERIMENTAL**: This library is in a experimental state, its not in use in production and still in development.
-
 
 Requirements
 ------------
