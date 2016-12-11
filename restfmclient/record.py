@@ -84,6 +84,12 @@ class Record(dict):
             return
 
         client = self._client.clone()
+
+        # Ugly hack to fix the URL for deletions when coming
+        # from a Cursor.
+        if client.path.endswith('.json'):
+            client.path = client.path[0:-5]
+
         client.path += "%s/.json" % self.record_id
         await client.delete()
         self._deleted = True

@@ -18,7 +18,7 @@ class Layout(object):
         self._client.path += 'layout/' + quote(self._name) + '/'
 
         self._count = None
-    
+
     @property
     def client(self):
         return self._client.clone()
@@ -27,8 +27,8 @@ class Layout(object):
     async def count(self):
         try:
             await self.get_one()
-        except RESTfmException:
-            pass
+        except RESTfmNotFound:
+            return 0
 
         return self._count
 

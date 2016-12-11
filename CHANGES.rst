@@ -4,6 +4,8 @@ Changelog
 1.0.1 (unreleased)
 ------------------
 
+- Fix 2 smaller bugs.
+
 - Do not chache "count" in layouts, we want always the current number.
 
 
