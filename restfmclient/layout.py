@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from restfmclient.cursor import Cursor
 from restfmclient.exceptions import RESTfmNotFound
 from restfmclient.record import info_from_resultset
 from restfmclient.record import Record
-from restfmclient.cursor import Cursor
 from urllib.parse import quote
 
 

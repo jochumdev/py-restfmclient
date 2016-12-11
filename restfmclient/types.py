@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-import uuid
+
 import abc
+import uuid
 
 
 class TypeConverter(object, metaclass=abc.ABCMeta):
