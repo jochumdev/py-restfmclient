@@ -8,9 +8,9 @@ def info_from_resultset(result):
     fields = {}
     for field in result['metaField']:
         if field['resultType'] == 'timestamp':
-            converter = restfmclient.types.Timestamp()
+            converter = restfmclient.types.Timestamp
         else:
-            converter = restfmclient.types.Text()
+            converter = restfmclient.types.Text
 
         fields[field['name']] = {
             'auto_entered': field['autoEntered'],

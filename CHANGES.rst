@@ -1,8 +1,10 @@
 Changelog
 ---------
 
-1.0.1 (unreleased)
+1.1.0 (unreleased)
 ------------------
+
+- Use type converters as staticmethods, this breaks the API.
 
 - Fix 2 smaller bugs.
 
