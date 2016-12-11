@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from restfmclient.exceptions import RESTfmException
 from restfmclient.exceptions import RESTfmNotFound
 from restfmclient.record import info_from_resultset
 from restfmclient.record import Record
