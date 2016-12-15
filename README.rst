@@ -19,6 +19,14 @@ Requirements
 - Tested with FileMaker 15 Server, should work with others.
 
 
+Available over pip
+------------------
+
+We upload releases to pypi, you can get restfmclient over pip::
+
+   pip3 install restfmclient
+
+
 Install RESTfm on \*nix
 -----------------------
 
