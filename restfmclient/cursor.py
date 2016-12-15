@@ -155,7 +155,7 @@ class Cursor(AsyncIterator):
                         )
 
             # With this asyncio gets time to prefetch
-            await asyncio.sleep(0)
+            await asyncio.sleep(0, loop=self._client.loop)
 
         elif self._current_block_pos >= self._current_block_size:
             # Do we have more rows to fetch

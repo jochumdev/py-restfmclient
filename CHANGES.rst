@@ -4,6 +4,8 @@ Changelog
 1.1.0 (unreleased)
 ------------------
 
+- Fix a bug with tests, export Record, add name property to layout.
+
 - Use type converters as staticmethods, this breaks the API.
 
 - Fix 2 smaller bugs.

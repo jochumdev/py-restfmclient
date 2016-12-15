@@ -19,6 +19,10 @@ class Layout(object):
         self._count = None
 
     @property
+    def name(self):
+        return self._name
+
+    @property
     def client(self):
         return self._client.clone()
 

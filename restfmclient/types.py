@@ -57,7 +57,7 @@ class UUID(TypeConverter):
         if value is None:
             return ''
 
-        return str(value)
+        return str(value).upper()
 
     @classmethod
     def from_fm(cls, value, client):

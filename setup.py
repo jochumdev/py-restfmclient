@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from restfmclient.version import __version__
 from setuptools import find_packages
 from setuptools import setup
-from restfmclient.version import __version__
 
 
 long_description = (
