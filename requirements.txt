@@ -1,4 +1,4 @@
-aiohttp==1.1.6
+aiohttp==1.2.0
 aiofiles==0.3.0
 pytz==2016.10
 tzlocal==1.3
