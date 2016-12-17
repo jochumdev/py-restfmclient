@@ -1,11 +1,17 @@
 python client library for `RESTfm`_
 ===================================
 
-.. image:: https://travis-ci.org/mariaebene/py-restfmclient.svg?branch=master
+.. image:: https://img.shields.io/travis/mariaebene/py-restfmclient.svg
     :target: https://travis-ci.org/mariaebene/py-restfmclient
 
-.. image:: https://codecov.io/gh/mariaebene/py-restfmclient/branch/master/graph/badge.svg
+.. image:: https://img.shields.io/codecov/c/github/mariaebene/py-restfmclient.svg
   :target: https://codecov.io/gh/mariaebene/py-restfmclient
+
+.. image:: https://img.shields.io/pypi/v/py-restfmclient.svg
+  :target: https://pypi.python.org/pypi/restfmclient
+
+.. image:: https://img.shields.io/requires/github/mariaebene/py-restfmclient.svg
+  :target: https://requires.io/github/mariaebene/py-restfmclient/requirements/?branch=master
 
 **In short** This library gives you full access to Filemaker with a pythonic api.
 
