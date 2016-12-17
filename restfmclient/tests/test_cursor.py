@@ -11,7 +11,7 @@ class CursorTestCase(RESTfmTestCase):
             layout = self.client.get_db('restfm_example')\
                                 .layout('iterate_test')
             try:
-                async for record in layout.get(block_size=3):
+                async for record in await layout.get(block_size=3):
                     print(record['number'])
             except ValueError:
                 return
@@ -24,7 +24,7 @@ class CursorTestCase(RESTfmTestCase):
             layout = self.client.get_db('restfm_example')\
                                 .layout('iterate_test')
             numbers = []
-            async for record in layout.get(limit=500, offset=10):
+            async for record in await layout.get(limit=500, offset=10):
                 numbers.append(int(record['number']))
 
             self.assertEqual(
@@ -41,7 +41,7 @@ class CursorTestCase(RESTfmTestCase):
             layout = self.client.get_db('restfm_example')\
                                 .layout('iterate_test')
             numbers = []
-            async for record in layout.get(
+            async for record in await layout.get(
                     limit=500, offset=10, block_size=None):
                 numbers.append(int(record['number']))
 
@@ -59,7 +59,7 @@ class CursorTestCase(RESTfmTestCase):
             layout = self.client.get_db('restfm_example')\
                                 .layout('iterate_test')
             numbers = []
-            async for record in layout.get(
+            async for record in await layout.get(
                     limit=100, offset=10, prefetch=False):
                 numbers.append(int(record['number']))
 
@@ -77,7 +77,7 @@ class CursorTestCase(RESTfmTestCase):
             layout = self.client.get_db('restfm_example')\
                                 .layout('iterate_test')
             numbers = []
-            async for record in layout.get(
+            async for record in await layout.get(
                     limit=500, offset=4600, prefetch=False):
                 numbers.append(int(record['number']))
 
@@ -96,7 +96,7 @@ class CursorTestCase(RESTfmTestCase):
                                 .layout('iterate_test')
 
             numbers = []
-            async for record in layout.get():
+            async for record in await layout.get():
                 numbers.append(record['number'])
 
             self.assertEqual(

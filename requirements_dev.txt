@@ -2,6 +2,7 @@
 aiodns==1.1.1
 cchardet==1.1.1
 uvloop==0.6.7
+py-dateutil==2.2
 
 # Dev Tools and its dependencies
 codecov==2.0.5

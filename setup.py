@@ -36,5 +36,11 @@ setup(
         'aiohttp',
         'simplejson',
         'pytz',
-    ]
+        'tzlocal',
+    ],
+    extras_require={
+        'test': [
+            'py-dateutil',
+        ]
+    }
 )

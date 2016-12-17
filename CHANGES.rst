@@ -4,6 +4,8 @@ Changelog
 1.1.1 (unreleased)
 ------------------
 
+- Improve tests, add more Date types.
+
 - Better default block_size and convert input search values.
 
 - Use tzlocal.get_localzone() as default timezone.

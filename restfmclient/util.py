@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pytz import timezone
+import pytz
 
 
 class TimzoneManager(object):
@@ -12,4 +12,7 @@ class TimzoneManager(object):
 
     @timezone.setter
     def timezone(self, value):
-        self._timezone = timezone(value)
+        if isinstance(value, (str,)):
+            self._timezone = pytz.timezone(value)
+        else:
+            self._timezone = value

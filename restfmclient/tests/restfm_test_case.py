@@ -76,6 +76,7 @@ class RESTfmTestCase(unittest.TestCase):
         )
 
     def setUp(self):
+        self.maxDiff = None
         self.loop = uvloop.new_event_loop()
         asyncio.set_event_loop(None)
 

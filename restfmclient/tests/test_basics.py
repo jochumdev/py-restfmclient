@@ -3,9 +3,11 @@ from aiohttp.test_utils import unittest_run_loop
 from pprint import pprint
 from restfmclient import RESTfmException
 from restfmclient import RESTfmNotFound
+from restfmclient import types
 from restfmclient.tests import RESTfmTestCase
 
 import copy
+import dateutil.parser
 import time
 
 
@@ -43,7 +45,7 @@ class BasicTestCase(RESTfmTestCase):
             db = self.client.get_db('restfm_example')
             self.assertEqual('restfm_example', db.name)
             layouts = await db.list_layouts()
-            self.assertEqual(len(layouts), 4)
+            self.assertEqual(len(layouts), 5)
 
             # This is needed for further iterate tests:
             self.assertIn('iterate_test', layouts)
@@ -88,7 +90,7 @@ class BasicTestCase(RESTfmTestCase):
 
             # Read
             await layout.get_one()
-            async for record in layout.get():
+            async for record in await layout.get():
                 print(record.record_id)
 
             # Now with the /tmp saver.
@@ -98,7 +100,7 @@ class BasicTestCase(RESTfmTestCase):
 
             # Read
             await layout.get_one()
-            async for record in layout.get():
+            async for record in await layout.get():
                 print(record.record_id)
 
             # The if is here for codecov ...
@@ -208,9 +210,36 @@ class BasicTestCase(RESTfmTestCase):
                 'zip': '95111'
             }
 
-            record = await layout.get_by_id(635)
-            record = await layout.get_by_id(635)  # Twice for coverage
+            record = await layout.get_by_id(2471)
             self.assertEqual(record, stored_record)
+
+    @unittest_run_loop
+    async def test_layout_find_one(self):
+        async with self.client:
+            db = self.client.get_db('restfm_example')
+            layout = db.layout('us500')
+
+            stored_row = {
+                'address': '6 Greenleaf Ave',
+                'city': 'San Jose',
+                'company_name': 'C 4 Network Inc',
+                'country': 'Santa Clara',
+                'email': 'vinouye@aol.com',
+                'first_name': 'Veronika',
+                'last_name': 'Inouye',
+                'phone1': '408-540-1785',
+                'phone2': '408-813-4592',
+                'state': 'CA',
+                'web': 'http://www.cnetworkinc.com',
+                'zip': '95111'
+            }
+
+            # https://github.com/GoyaPtyLtd/RESTfm/issues/12
+            row = await layout.get_one(
+                search={'email': 'vinouye*'},
+            )
+
+            self.assertEqual(row, stored_row)
 
     @unittest_run_loop
     async def test_update_unknown_field(self):
@@ -315,7 +344,7 @@ class BasicTestCase(RESTfmTestCase):
 
             records_num = 0
             sql = 'SELECT "zip", "web" WHERE zip LIKE \'70000..80000\''
-            async for record in layout.get(sql=sql):
+            async for record in await layout.get(sql=sql):
                 records_num += 1
                 self.assertGreaterEqual(int(record['zip']), 70000)
                 self.assertLessEqual(int(record['zip']), 80000)
@@ -330,7 +359,7 @@ class BasicTestCase(RESTfmTestCase):
 
             records_num = 0
             sql = 'SELECT "zip", "web" WHERE state = "nonexistant"'
-            async for record in layout.get(sql=sql):
+            async for record in await layout.get(sql=sql):
                 records_num += 1
                 print(record.record_id)
 
@@ -398,3 +427,36 @@ class BasicTestCase(RESTfmTestCase):
                 self.assertEqual(record['state'], 'LA')
 
             self.assertEqual(records_num, 2)
+
+    @unittest_run_loop
+    async def test_find_pk_0(self):
+        async with self.client:
+            db = self.client.get_db('restfm_example')
+            layout = db.layout('testview1')
+
+            async for row in await layout.get():
+                await row.delete()
+
+            field_info = await layout.field_info
+            field_info['pk']['converter'] = types.INTEGER
+
+            a_date = dateutil.parser\
+                             .parse('1986-03-06 09:28:47.251665+01:00')\
+                             .astimezone(layout.client.timezone)\
+                             .replace(microsecond=0)
+
+            wanted = {
+                'pk': 0,
+                'text': 'bla bla',
+                'updated_at': a_date,
+            }
+
+            row = await layout.create()
+            row.update(wanted)
+            await row.save()
+
+            have = await layout.get_one(
+                search={'pk': 0}
+            )
+
+            self.assertDictEqual(have, wanted)
