@@ -82,7 +82,7 @@ class CursorTestCase(RESTfmTestCase):
                 numbers.append(int(record['number']))
 
             self.assertEqual(
-                numbers[0], 4601, 'First number must be 4600 as we have offset=4600'  # noqa
+                numbers[0], 4601, 'First number must be 4601 as we have offset=4600'  # noqa
             )
             self.assertEqual(
                 numbers[len(numbers) - 1], 5000,

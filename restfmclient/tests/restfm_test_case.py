@@ -6,6 +6,7 @@ from restfmclient.tests.file_server import make_mock_app
 import asyncio
 import gc
 import os
+import pytz
 import restfmclient
 import unittest
 import uvloop
@@ -17,6 +18,8 @@ class RESTfmTestClient(restfmclient.Client):
         self._server = None
         if 'RESTFM_BASE_URL' not in os.environ:
             self._server = TestServer(app, scheme=scheme, host=host)
+
+        self.timezone = pytz.timezone('Asia/Yakutsk')
 
         self._loop = app.loop
 

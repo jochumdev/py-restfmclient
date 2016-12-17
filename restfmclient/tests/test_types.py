@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from pytz import timezone as pytz_timezone
 from restfmclient import types
 from restfmclient.client import Client
 from tzlocal import get_localzone
 
-import dateutil.parser
+import datetime
+import pytz
 import unittest
 import uuid
 
@@ -16,15 +16,18 @@ class TestCase(unittest.TestCase):
 
         # We use Yakutsk, Russia timezone to check if they convert right
         # with the local one
-        self.other_timezone = pytz_timezone('Asia/Yakutsk')
+        self.other_timezone = pytz.timezone('Asia/Yakutsk')
         if get_localzone() == self.other_timezone:
-            self.other_timezone = pytz_timezone('Europe/Vienna')
+            self.other_timezone = pytz.timezone('Europe/Vienna')
 
         self.client = Client(None, 'http://localhost').rest_client
+        self.client.timezone = self.other_timezone
 
-        self.a_date = dateutil.parser\
-                              .parse('1986-03-06 09:28:47.251665+01:00')\
-                              .astimezone(self.other_timezone)
+        self.a_date = datetime.datetime(
+            1986, 3, 6, 10, 28, 47,
+            tzinfo=pytz.UTC,
+        ).astimezone(pytz.timezone('Europe/Vienna'))\
+         .astimezone(get_localzone())
 
         self.a_uuid = uuid.uuid1()
 
@@ -45,24 +48,22 @@ class TestCase(unittest.TestCase):
         self.assertEqual(types.DATETIME.from_fm('', self.client), None)
         self.assertEqual(types.DATETIME.to_fm(None, self.client), '')
 
-        wanted = self.a_date.replace(microsecond=0)
-        fm_value = types.DATETIME.to_fm(wanted, self.client)
+        fm_value = types.DATETIME.to_fm(self.a_date, self.client)
 
         self.assertEqual(
             types.DATETIME.from_fm(fm_value, self.client),
-            wanted)
+            self.a_date.replace(microsecond=0))
 
     def test_datetime_utc(self):
         # TEXT->None converter
         self.assertEqual(types.DATETIME_UTC.from_fm('', self.client), None)
         self.assertEqual(types.DATETIME_UTC.to_fm(None, self.client), '')
 
-        wanted = self.a_date.replace(microsecond=0)
-        fm_value = types.DATETIME_UTC.to_fm(wanted, self.client)
+        fm_value = types.DATETIME_UTC.to_fm(self.a_date, self.client)
 
         self.assertEqual(
             types.DATETIME_UTC.from_fm(fm_value, self.client),
-            wanted)
+            self.a_date.replace(microsecond=0))
 
     def test_timestamp_utc(self):
         # TEXT->None converter

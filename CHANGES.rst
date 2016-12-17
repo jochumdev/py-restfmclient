@@ -4,7 +4,7 @@ Changelog
 1.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix timezone conversations.
 
 
 1.2.0 (2016-12-17)

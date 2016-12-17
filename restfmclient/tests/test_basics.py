@@ -5,9 +5,10 @@ from restfmclient import RESTfmException
 from restfmclient import RESTfmNotFound
 from restfmclient import types
 from restfmclient.tests import RESTfmTestCase
+from tzlocal import get_localzone
 
 import copy
-import dateutil.parser
+import datetime
 import time
 
 
@@ -438,12 +439,11 @@ class BasicTestCase(RESTfmTestCase):
                 await row.delete()
 
             field_info = await layout.field_info
+            field_info['updated_at']['converter'] = types.DATETIME
             field_info['pk']['converter'] = types.INTEGER
 
-            a_date = dateutil.parser\
-                             .parse('1986-03-06 09:28:47.251665+01:00')\
-                             .astimezone(layout.client.timezone)\
-                             .replace(microsecond=0)
+            a_date = datetime.datetime(1986, 3, 6, 9, 28, 47)
+            a_date = get_localzone().localize(a_date)
 
             wanted = {
                 'pk': 0,

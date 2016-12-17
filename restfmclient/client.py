@@ -110,6 +110,7 @@ class Client(object):
             self._client.timezone = timezone(tz)
         elif tz is None:
             self._client.timezone = get_localzone()
+
         else:
             self._client.timezone = tz
 

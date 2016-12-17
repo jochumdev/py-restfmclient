@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from datetime import timezone as dt_timezone
 from datetime import datetime
 
 import abc
+import pytz
 import uuid
 
 
@@ -42,8 +42,11 @@ class DATETIME(TypeConverter):
         if value == '':
             return None
 
-        date = datetime.strptime(value, '%m/%d/%Y %H:%M:%S')
-        return client.timezone.localize(date, is_dst=None)
+        date = client.timezone.localize(
+            datetime.strptime(value, '%m/%d/%Y %H:%M:%S')
+        ).astimezone(tz=None)
+
+        return date
 
 
 class DATETIME_UTC(TypeConverter):
@@ -52,16 +55,16 @@ class DATETIME_UTC(TypeConverter):
         if value is None:
             return ''
 
-        return value.astimezone(client.timezone).strftime('%m/%d/%Y %H:%M:%S')
+        return value.astimezone(pytz.utc).strftime('%m/%d/%Y %H:%M:%S')
 
     @classmethod
     def from_fm(cls, value, client):
         if value == '':
             return None
 
-        date = datetime.strptime(value, '%m/%d/%Y %H:%M:%S')
-        return client.timezone.localize(date, is_dst=None)\
-                              .astimezone(dt_timezone.utc)
+        return pytz.UTC.localize(
+            datetime.strptime(value, '%m/%d/%Y %H:%M:%S')
+        ).astimezone(tz=None)
 
 
 class TIMESTAMP_UTC(TypeConverter):
@@ -71,7 +74,7 @@ class TIMESTAMP_UTC(TypeConverter):
             return ''
 
         return int(
-            value.astimezone(tz=dt_timezone.utc)
+            value.astimezone(tz=pytz.utc)
                  .replace(microsecond=0)
                  .timestamp(),
         )
@@ -83,8 +86,8 @@ class TIMESTAMP_UTC(TypeConverter):
 
         timestamp = int(str(value), base=10)
         return datetime.utcfromtimestamp(timestamp)\
-                       .replace(tzinfo=dt_timezone.utc)\
-                       .astimezone(client.timezone)
+                       .replace(tzinfo=pytz.utc)\
+                       .astimezone(tz=None)
 
 
 class TIMESTAMP_UTC_FLOAT(TypeConverter):
@@ -94,7 +97,7 @@ class TIMESTAMP_UTC_FLOAT(TypeConverter):
             return ''
 
         return float(
-            value.astimezone(tz=dt_timezone.utc)
+            value.astimezone(tz=pytz.utc)
                  .timestamp(),
         )
 
@@ -105,8 +108,8 @@ class TIMESTAMP_UTC_FLOAT(TypeConverter):
 
         timestamp = float(value)
         return datetime.utcfromtimestamp(timestamp)\
-                       .replace(tzinfo=dt_timezone.utc)\
-                       .astimezone(client.timezone)
+                       .replace(tzinfo=pytz.utc)\
+                       .astimezone(tz=None)
 
 
 class TIMESTAMP(TypeConverter):
@@ -127,7 +130,7 @@ class TIMESTAMP(TypeConverter):
         timestamp = int(str(value), base=10)
         return datetime.fromtimestamp(timestamp, tz=client.timezone)\
                        .replace(microsecond=0)\
-                       .astimezone(tz=client.timezone)
+                       .astimezone(tz=None)
 
 
 class TIMESTAMP_FLOAT(TypeConverter):
@@ -137,7 +140,7 @@ class TIMESTAMP_FLOAT(TypeConverter):
             return ''
 
         return float(
-            value.astimezone(tz=dt_timezone.utc)
+            value.astimezone(tz=pytz.utc)
                  .timestamp()
         )
 
@@ -148,7 +151,7 @@ class TIMESTAMP_FLOAT(TypeConverter):
 
         timestamp = float(value)
         return datetime.fromtimestamp(timestamp, tz=client.timezone)\
-                       .astimezone(tz=client.timezone)
+                       .astimezone(tz=None)
 
 
 class UUID(TypeConverter):
