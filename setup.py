@@ -24,7 +24,7 @@ setup(
     keywords='Python Filemaker RestFM',
     author='René Jochum',
     author_email='rene.jochum@mariaebene.at',
-    url='http://pypi.python.org/pypi/restfm',
+    url='https://github.com/mariaebene/py-restfmclient',
     license='MIT',
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests"]
