@@ -46,12 +46,10 @@ class Layout(object):
 
         result = await client.get()
 
-        if self._field_info is None or self._count is None:
-            field_info, count = info_from_resultset(result)
-            if self._field_info is None:
-                self._field_info = field_info
-            if self._count is None:
-                self._count = count
+        field_info, count = info_from_resultset(result)
+        self._count = count
+        if self._field_info is None:  # pragma: no coverage
+            self._field_info = field_info
 
         return self._field_info
 
@@ -80,7 +78,8 @@ class Layout(object):
             client,
             block_size=block_size,
             limit=limit, offset=offset,
-            field_info=self._field_info
+            field_info=self._field_info,
+            prefetch=prefetch,
         )
 
     async def get_one(self, search=None, sql=None, skip=0):
@@ -107,10 +106,9 @@ class Layout(object):
 
         if self._field_info is None or self._count is None:
             field_info, count = info_from_resultset(result)
+            self._count = count
             if self._field_info is None:
                 self._field_info = field_info
-            if self._count is None:
-                self._count = count
 
         if 'data' not in result:
             raise RESTfmNotFound()

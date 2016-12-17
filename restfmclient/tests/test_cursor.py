@@ -6,6 +6,15 @@ from restfmclient.tests import RESTfmTestCase
 class CursorTestCase(RESTfmTestCase):
 
     @unittest_run_loop
+    async def test_count(self):
+        async with self.client:
+            layout = self.client.get_db('restfm_example')\
+                                .layout('iterate_test')
+
+            # Layout count must be exactly 5000 for this tests.
+            self.assertEqual(await layout.count, 5000)
+
+    @unittest_run_loop
     async def test_bad_blocksize(self):
         async with self.client:
             layout = self.client.get_db('restfm_example')\
@@ -69,6 +78,24 @@ class CursorTestCase(RESTfmTestCase):
             self.assertEqual(
                 numbers[len(numbers) - 1], 110,
                 'Last number must be 110 we have limit=100, offset=10'
+            )
+
+    @unittest_run_loop
+    async def test_from_middle_no_prefetch(self):
+        async with self.client:
+            layout = self.client.get_db('restfm_example')\
+                                .layout('iterate_test')
+            numbers = []
+            async for record in await layout.get(
+                    limit=2000, offset=2000, prefetch=False):
+                numbers.append(int(record['number']))
+
+            self.assertEqual(
+                numbers[0], 2001, 'First number must be 2001 as we have offset=2000'  # noqa
+            )
+            self.assertEqual(
+                numbers[len(numbers) - 1], 4000,
+                'Last number must be 4000 we have limit=2000, offset=2000'
             )
 
     @unittest_run_loop

@@ -58,10 +58,9 @@ class Cursor(AsyncIterator):
 
         if self._field_info is None or self._count is None:
             field_info, count = info_from_resultset(result)
+            self._count = count
             if self._field_info is None:
                 self._field_info = field_info
-            if self._count is None:
-                self._count = count
 
         if 'data' not in result or isinstance(result['data'][0], (list,)):
             raise StopAsyncIteration
@@ -127,7 +126,7 @@ class Cursor(AsyncIterator):
             self._prefetcher = None
 
             if self._current_block_size == 0:
-                raise StopAsyncIteration
+                raise StopAsyncIteration  # pragma: no coverage
 
         row = self._current_block[self._current_block_pos]
         self._current_pos += 1
@@ -158,19 +157,13 @@ class Cursor(AsyncIterator):
             await asyncio.sleep(0, loop=self._client.loop)
 
         elif self._current_block_pos >= self._current_block_size:
-            # Do we have more rows to fetch
-            if (self._count is not None and
-                    self._count > self._current_pos):
-                # Do we reach a limit?
-                if (self._limit is None or self._current_pos < self._limit):
-                    # Prefetch off, blocksize on
-                    self._prefetcher = asyncio.ensure_future(
-                        self._fetch(
-                            self._offset +
-                            self._current_pos +
-                            self._block_size_div
-                        ),
-                        loop=self._client.loop
-                    )
+            # Prefetch off, blocksize on
+            self._prefetcher = asyncio.ensure_future(
+                self._fetch(
+                    self._offset +
+                    self._current_pos
+                ),
+                loop=self._client.loop
+            )
 
         return row

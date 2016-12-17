@@ -46,6 +46,10 @@ class Record(dict):
                 super(Record, self).__setitem__(
                     k, field_info['converter'].from_fm(v, self._client)
                 )
+            else:
+                super(Record, self).__setitem__(
+                    k, v
+                )
 
     @property
     def record_id(self):
@@ -118,5 +122,5 @@ class Record(dict):
         if other is not None:
             for k, v in other.items() if isinstance(other, Mapping) else other:
                 self[k] = v
-        for k, v in kwargs.items():
+        for k, v in kwargs.items():  # pragma: no coverage
             self[k] = v

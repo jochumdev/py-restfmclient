@@ -12,7 +12,7 @@ import urllib.parse as urlparse
 
 try:
     import simplejson as json
-except ImportError:
+except ImportError:  # pragma: no coverage
     import json
 
 try:
@@ -75,7 +75,7 @@ class Rest(object):
     # Parameters
     @logger.setter
     def logger(self, value):
-        self._logger = value
+        self._logger = value  # pragma: no coverage
 
     # Parameters
     @property
@@ -190,7 +190,7 @@ class Rest(object):
 
         url_parts = list(urlparse.urlparse(url))
         filename = 'index.json'
-        if url_parts[4] != '':
+        if url_parts[4] != '':  # pragma: no coverage
             query = OrderedDict(
                 sorted(dict(urlparse.parse_qsl(url_parts[4])).items())
             )

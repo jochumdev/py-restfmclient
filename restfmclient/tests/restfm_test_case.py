@@ -90,6 +90,11 @@ class RESTfmTestCase(unittest.TestCase):
     def tearDown(self):
         self.loop.run_until_complete(self.client.close())
 
+        # For coverage
+        self.loop.run_until_complete(self.client.list_dbs())
+        self.client.get_db('None')
+        self.loop.run_until_complete(self.client.close())
+
         closed = self.loop.is_closed()
         if not closed:
             self.loop.call_soon(self.loop.stop)

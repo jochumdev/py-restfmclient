@@ -9,6 +9,7 @@ from tzlocal import get_localzone
 
 import copy
 import datetime
+import pytz
 import time
 
 
@@ -353,6 +354,21 @@ class BasicTestCase(RESTfmTestCase):
             self.assertEqual(records_num, 43)
 
     @unittest_run_loop
+    async def test_field_search(self):
+        async with self.client:
+            db = self.client.get_db('restfm_example')
+            layout = db.layout('us500')
+
+            records_num = 0
+            async for record in await layout.get(
+                    search={'zip': '70000..80000'}):
+                records_num += 1
+                self.assertGreaterEqual(int(record['zip']), 70000)
+                self.assertLessEqual(int(record['zip']), 80000)
+
+            self.assertEqual(records_num, 43)
+
+    @unittest_run_loop
     async def test_sql_query_no_result(self):
         async with self.client:
             db = self.client.get_db('restfm_example')
@@ -442,8 +458,9 @@ class BasicTestCase(RESTfmTestCase):
             field_info['updated_at']['converter'] = types.DATETIME
             field_info['pk']['converter'] = types.INTEGER
 
-            a_date = datetime.datetime(1986, 3, 6, 9, 28, 47)
-            a_date = get_localzone().localize(a_date)
+            a_date = pytz.timezone('Europe/Vienna').localize(
+                datetime.datetime(1986, 3, 6, 9, 28, 47)
+            ).astimezone(tz=None)
 
             wanted = {
                 'pk': 0,
@@ -457,6 +474,62 @@ class BasicTestCase(RESTfmTestCase):
 
             have = await layout.get_one(
                 search={'pk': 0}
+            )
+
+            self.assertDictEqual(have, wanted)
+
+    @unittest_run_loop
+    async def test_change_timezone(self):
+        async with self.client:
+            db = self.client.get_db('restfm_example')
+
+            # Change the Database timezone.
+            db.timezone = pytz.timezone('Asia/Yakutsk')
+
+            layout = db.layout('testview1')
+            self.assertEqual(
+                db.timezone,
+                pytz.timezone('Asia/Yakutsk')
+            )
+
+            self.assertEqual(
+                layout.client.timezone,
+                pytz.timezone('Asia/Yakutsk')
+            )
+
+            async for row in await layout.get():
+                await row.delete()
+
+            field_info = await layout.field_info
+            field_info['updated_at']['converter'] = types.DATETIME
+            field_info['pk']['converter'] = types.INTEGER
+            field_info['text']['converter'] = None
+
+            a_date = pytz.timezone('Europe/Vienna').localize(
+                datetime.datetime(1986, 3, 6, 9, 28, 47)
+            ).astimezone(tz=None)
+
+            have = {
+                'pk': 1,
+                'text': 'bla bla',
+                'updated_at': a_date,
+            }
+
+            wanted = {
+                'pk': 1,
+                'text': 'bla bla',
+                'updated_at': '03/06/1986 17:28:47',
+            }
+
+            row = await layout.create()
+            row.update(have)
+            await row.save()
+
+            field_info = await layout.field_info
+            field_info['updated_at']['converter'] = types.TEXT
+
+            have = await layout.get_one(
+                search={'pk': 1}
             )
 
             self.assertDictEqual(have, wanted)

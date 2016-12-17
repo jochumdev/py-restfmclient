@@ -3,8 +3,8 @@ branch = True
 source = restfmclient
 
 [report]
-omit =
-    restfmclient/tests/*
+include =
+    restfmclient/*
 exclude_lines =
     def __str__
     pragma: no cover

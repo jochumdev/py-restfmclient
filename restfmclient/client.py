@@ -100,15 +100,17 @@ class Client(object):
     def __init__(self, loop, base_url,
                  username=None, password=None, verify_ssl=True,
                  tz=None, logger=None):
-        if logger is None:
+        if logger is None:  # pragma: no coverage
             logger = mylogger
         self._client = RESTfm(loop, logger)
         self._client.verify_ssl = verify_ssl
         self._client.base_url = base_url
 
+        self._closed = False
+
         if isinstance(tz, (str,)):
-            self._client.timezone = timezone(tz)
-        elif tz is None:
+            self._client.timezone = timezone(tz)  # pragma: no coverage
+        elif tz is None:  # pragma: no coverage
             self._client.timezone = get_localzone()
 
         else:
@@ -130,8 +132,8 @@ class Client(object):
         self._client.store_path = value
 
     async def list_dbs(self):
-        if self._client is None:
-            return []  # pragma: no cover
+        if self._closed:
+            return []
 
         client = self._client.clone()
         client.path = '.json'
@@ -145,15 +147,16 @@ class Client(object):
         return result
 
     def get_db(self, name):
-        if self._client is None:
-            return None  # pragma: no cover
+        if self._closed:
+            return None
 
         return Database(self._client.clone(), name)
 
     async def close(self):
-        if self._client is not None:
+        if self._closed:
             await self._client.close()
             self._client = None
+            self._closed = True
 
     async def __aenter__(self):
         return self

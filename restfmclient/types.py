@@ -11,12 +11,12 @@ class TypeConverter(object, metaclass=abc.ABCMeta):
     @classmethod
     @abc.abstractmethod
     def to_fm(cls, value, client):
-        pass
+        """Convert from python to FileMaker (often string)"""
 
     @classmethod
     @abc.abstractmethod
     def from_fm(cls, value, client):
-        pass
+        """Convert from FileMaker to Python"""
 
 
 class TEXT(TypeConverter):

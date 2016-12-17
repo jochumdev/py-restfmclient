@@ -16,11 +16,11 @@ class Script(TimzoneManager):
 
     @property
     def field_info(self):
-        return self._field_info
+        return self._field_info  # pragma: no coverage
 
     @field_info.setter
     def field_info(self, value):
-        self._field_info = value
+        self._field_info = value  # pragma: no coverage
 
     def execute(self, layout, scriptParam=None, limit=None):
         client = self._client.clone()
