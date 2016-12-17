@@ -59,8 +59,8 @@ class Layout(object):
     def field_info(self, value):
         self._field_info = value
 
-    def get(self, search=None, sql=None, block_size=100,
-            limit=None, offset=0, prefetch=True):
+    async def get(self, search=None, sql=None, block_size=128,
+                  limit=None, offset=0, prefetch=True):
         client = self.client
         client.path += '.json'
         if sql is not None:
@@ -68,9 +68,12 @@ class Layout(object):
 
         searchNum = 1
         if search is not None:
+            field_info = await self.field_info
+
             for k, v in search.items():
                 client.query['RFMsF%d' % searchNum] = k
-                client.query['RFMsV%d' % searchNum] = v
+                client.query['RFMsV%d' % searchNum] = \
+                    field_info[k]['converter'].to_fm(v, client)
                 searchNum += 1
 
         return Cursor(
@@ -88,9 +91,12 @@ class Layout(object):
 
         searchNum = 1
         if search is not None:
+            field_info = await self.field_info
+
             for k, v in search.items():
                 client.query['RFMsF%d' % searchNum] = k
-                client.query['RFMsV%d' % searchNum] = v
+                client.query['RFMsV%d' % searchNum] = \
+                    field_info[k]['converter'].to_fm(v, client)
                 searchNum += 1
 
         client.query['RFMmax'] = 1

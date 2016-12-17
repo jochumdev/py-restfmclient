@@ -4,6 +4,8 @@ Changelog
 1.1.1 (unreleased)
 ------------------
 
+- Better default block_size and convert input search values.
+
 - Use tzlocal.get_localzone() as default timezone.
 
 
