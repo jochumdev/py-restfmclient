@@ -8,6 +8,7 @@ from restfmclient.rest import Rest
 from restfmclient.rest import RestDecoderException
 from restfmclient.rest import RestNotFoundException
 from restfmclient.version import __version__
+from tzlocal import get_localzone
 
 import logging
 
@@ -98,13 +99,20 @@ class Client(object):
 
     def __init__(self, loop, base_url,
                  username=None, password=None, verify_ssl=True,
-                 tz='Europe/Vienna', logger=None):
+                 tz=None, logger=None):
         if logger is None:
             logger = mylogger
         self._client = RESTfm(loop, logger)
         self._client.verify_ssl = verify_ssl
         self._client.base_url = base_url
-        self._client.timezone = timezone(tz)
+
+        if isinstance(tz, (str,)):
+            self._client.timezone = timezone(tz)
+        elif tz is None:
+            self._client.timezone = get_localzone()
+        else:
+            self._client.timezone = tz
+
         if username is not None and password is not None:
             self._client.basic_auth(username, password)  # pragma: no cover
 

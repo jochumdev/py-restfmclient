@@ -4,7 +4,7 @@ Changelog
 1.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Use tzlocal.get_localzone() as default timezone.
 
 
 1.1.0 (2016-12-15)
