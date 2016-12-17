@@ -5,7 +5,6 @@ from restfmclient import RESTfmException
 from restfmclient import RESTfmNotFound
 from restfmclient import types
 from restfmclient.tests import RESTfmTestCase
-from tzlocal import get_localzone
 
 import copy
 import datetime
@@ -455,7 +454,7 @@ class BasicTestCase(RESTfmTestCase):
                 await row.delete()
 
             field_info = await layout.field_info
-            field_info['updated_at']['converter'] = types.DATETIME
+            field_info['updated_at']['converter'] = types.DATETIME_UTC
             field_info['pk']['converter'] = types.INTEGER
 
             a_date = pytz.timezone('Europe/Vienna').localize(
@@ -501,7 +500,7 @@ class BasicTestCase(RESTfmTestCase):
                 await row.delete()
 
             field_info = await layout.field_info
-            field_info['updated_at']['converter'] = types.DATETIME
+            field_info['updated_at']['converter'] = types.DATETIME_UTC
             field_info['pk']['converter'] = types.INTEGER
             field_info['text']['converter'] = None
 
@@ -518,7 +517,7 @@ class BasicTestCase(RESTfmTestCase):
             wanted = {
                 'pk': 1,
                 'text': 'bla bla',
-                'updated_at': '03/06/1986 17:28:47',
+                'updated_at': '03/06/1986 08:28:47',
             }
 
             row = await layout.create()

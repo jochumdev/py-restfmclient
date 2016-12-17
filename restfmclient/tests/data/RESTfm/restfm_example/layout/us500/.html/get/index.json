@@ -43,7 +43,7 @@
 <td><pre>504-621-8927</pre></td>
 <td><pre>504-845-1427</pre></td>
 <td><pre>jbutt@gmail.com</pre></td>
-<td><pre>https://www.restfm-update-1481996535.org</pre></td>
+<td><pre>https://www.restfm-update-1482000702.org</pre></td>
 </tr>
 <tr id="data_1">
 <td>[ <a href="/RESTfm/restfm_example/layout/us500/2451.html">link</a> ]</td>
@@ -404,7 +404,7 @@
 <tr><th>X-RESTfm-Status</th><td class="alt-colour">200</td></tr>
 <tr><th>X-RESTfm-Reason</th><td>OK</td></tr>
 <tr><th>X-RESTfm-Method</th><td class="alt-colour">GET</td></tr>
-<tr><th>X-RESTfm-Profile</th><td>53ms 1004.2K 128M</td></tr>
+<tr><th>X-RESTfm-Profile</th><td>28ms 1004.2K 128M</td></tr>
 <tr><th>X-RESTfm-PHP-memory_limit</th><td class="alt-colour">128M</td></tr>
 <tr><th>X-RESTfm-PHP-post_max_size</th><td>8M</td></tr>
 </table>
