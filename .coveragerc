@@ -5,6 +5,8 @@ source = restfmclient
 [report]
 include =
     restfmclient/*
+omit =
+    restfmclient/tests/*
 exclude_lines =
     def __str__
     pragma: no cover
